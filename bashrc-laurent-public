@@ -1,0 +1,129 @@
+#
+# PUBLIC bashrc
+# <laurent@gouloum.fr>
+#
+
+export EDITOR="vim"
+
+alias    c='for i in {1..25}; do printf "\n"; done'
+alias    g='grep -RIs --color=always'
+alias    ge='grep --color=always'
+alias    j='jobs'
+alias    p='pwd'
+alias	   ls='ls -F'
+alias    l='ls -AliF'
+function cl() { cd $@; ls; }
+alias    le='less -r'
+alias    pg='pgrep -lf'
+alias    pk='sudo pkill -f'
+alias    f='sudo ifconfig'
+function mkc() { mkdir $1; cd $1; }
+function dur() { du -sk ./* | sort -n | awk 'BEGIN{ pref[1]="K"; pref[2]="M"; pref[3]="G";} { total = total + $1; x = $1; y = 1; while( x > 1024 ) { x = (x + 1023)/1024; y++; } printf("%g%s\t%s\n",int(x*10)/10,pref[y],$2); } END { y = 1; while( total > 1024 ) { total = (total + 1023)/1024; y++; } printf("Total: %g%s\n",int(total*10)/10,pref[y]); }'; }
+function extract () {
+    if [ -f $1 ] ; then
+        case $1 in
+            *.tar.bz2)   tar xvjf $1        ;;
+            *.tar.gz)    tar xvzf $1     ;;
+            *.bz2)       bunzip2 $1       ;;
+            *.rar)       unrar x $1     ;;
+            *.gz)        gunzip $1     ;;
+            *.tar)       tar xvf $1        ;;
+            *.tbz2)      tar xvjf $1      ;;
+            *.tar.xz)    tar xvJf $1     ;;
+            *.tgz)       tar xvzf $1       ;;
+            *.zip)       unzip $1     ;;
+            *.Z)         uncompress $1  ;;
+            *.7z)        7z x $1    ;;
+            *)           echo "'$1' cannot be extracted via >extract<" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+alias    hisg='history |grep'
+
+function vimp() { vim `which $1`; }
+alias    td='sudo tcpdump -Z nobody -ni'
+function tdw() { CMD="sudo tcpdump -s0 -w $2 -ni $1 $3"; echo $CMD; `$CMD`; }
+function ifran() { echo $1; sudo ifconfig $1 down; ifconfig $1 |grep ether; sudo ifconfig $1 hw ether $(printf "00:%.2x:%.2x:%.2x:%.2x:%.2x\n" `for i in {1..5}; do echo $(($RANDOM % 256)); done`); ifconfig $1 |grep ether; }
+# function ifran() { ifconfig $1; s="00:26"; for i in `seq 1 4`; do s=$s:`printf '%x' \`echo $RANDOM\`|cut -c-2`; done; sudo ifconfig $1 hw ether $s && ifconfig $1; }
+function if0() { sudo ifconfig $1 down; sudo ifconfig $1 0.0.0.0; sudo route delete gw default dev $1 2>/dev/null; sudo ifconfig $1 down; }
+alias    ssh='ssh -v'
+alias    ssha='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o GSSAPIAuthentication=no'
+alias    sshe='vim ~/.ssh/config'
+alias    sshn='vim ~/.ssh/known_hosts'
+alias    sshklist='ssh-keygen -lf $HOME/.ssh/known_hosts'
+alias		 sshag="export SSH_AUTH_SOCK=`echo /tmp/ssh-\*/\* |head -n1`"
+alias    sftp='sftp -v'
+alias    mosh='mosh --ssh="ssh -v"'
+alias    apts='apt-cache search'
+alias    apti='sudo apt-get install'
+alias    aptu='sudo apt-get update'
+alias    ran='dd if=/dev/urandom count=500 bs=1 status=noxfer 2>/dev/null |md5sum -b |cut -d" " -f1'
+alias		 rans='tr -dc A-Za-z0-9_ < /dev/urandom | head -c 16 | xargs'
+function catn() { for i in $@; do echo "============================================================================"; echo $i; echo "============================================================================"; cat $i; done; }
+function catn_new() { find $@ |while read a; do [[ -f $a ]] && echo -e "\n====== $a =====" && cat $a || echo -e "\n>>>>>> $a <<<<<<"; done |less; }
+function wirr() { filter=${3-"not port 22"}; ssh -o User=root $1 tcpdump -i $2 -s 1500 -w - -U "$filter" | wireshark -i - -k; }
+function tshr() { host=$1 iface=$2 filter=${3-"not port 22"}; f=/tmp/tshr-fifo; echo "mkfifo $f; tshark -n -r $f"; echo "ssh -o User=root $host tcpdump -i $iface -s 1500 -w - -U $filter > $f"; echo "rm $f"; }
+function wpasup() { ifran $1; sudo wpa_supplicant -Dwext -i$1 -c/etc/wpa_supplicant/wpa_supplicant.conf; }
+function wpasup_ferber() { ifran $1; sudo wpa_supplicant -Dwext -i$1 -c/etc/wpa_supplicant/wpa_supplicant-ferber.conf; }
+function wpasup_noconf() { ifran $1; sudo wpa_supplicant -Dwext -i$1 -c/etc/wpa_supplicant/wpa_supplicant-empty.conf; }
+alias    alie='vim ~/.bashrc-laurent-public'
+alias    alir='. ~/.bashrc-laurent-public'
+alias    usee='vim ~/perso/USEFULL_COMMANDS'
+alias    xbindkeys-reload="pkill xbindkeys; xbindkeys"
+alias    tn='tmux new-session -s'
+alias    ta='tmux attach'
+alias    pabeep='paplay /usr/share/sounds/gnome/default/alerts/bark.ogg'
+function now() { while read line; do echo -e "`date ${1:++"$1"}` $line"; done }
+function loop() { time=$1; shift; while :; do echo $@; eval $@; sleep $time; done; pabeep; }
+function loop_false() { time=$1; shift; while :; do echo $@; eval $@ && break; sleep $time; done; pabeep; }
+
+alias    pingg='ping google.com'
+alias    pingx='ping 8.8.8.8'
+alias    pingxi='ping -i4 8.8.8.8'
+
+alias    gitl='git log --color --name-only'
+alias    gitlu='git log --color -u'
+alias    gitd='git diff --color'
+function gitc() { git branch |grep "* master" || (git branch; read a); git diff $@|less; git commit $@; }
+alias    gitcount='git log |egrep "^commit" |wc -l'
+alias		 gitb='git branch'
+alias		 gitco='git checkout'
+alias    gits='git status'
+alias    gitpull='git pull'
+alias    gitsync='git pull; git push'
+alias    gitsta='git stash'
+alias    gitstap='git stash pop'
+# Pushes commits 1by1. Only works if noone has commited before you. Good if you do dev in your own branch.
+function gitpush1_branch() { branch=`git rev-parse --abbrev-ref HEAD`; git log origin/$branch..$branch |egrep "^commit .*" |awk "{print \$2} /^commit $1$/ {exit}" |tac |while read c; do cmd="git push origin $c:$branch"; echo $cmd; $($cmd) ||exit; done }
+alias    gitunpushed='export GIT_CURRENT_BRANCH=$(git name-rev --name-only HEAD) && git log origin/$GIT_CURRENT_BRANCH..$GIT_CURRENT_BRANCH'
+
+alias    dhk='sudo pkill -f dhcpcd'
+alias    dhc='sudo dhcpcd'
+alias    dhcp='sudo dhcpcd -p'
+alias    dhcr='sudo dhcpcd -A -E -p -G -C resolv.conf'
+function dhca() { dhcp $1 && sudo dhcpcd -x $1 && dhcr $1; }
+alias    dhs='pgrep -lf dhcpcd'
+alias    ros='route -n'
+alias    rod='sudo route delete default'
+alias    roa='sudo route add default gw'
+function roah() { sudo route add $1 gw $2; }
+function rodh() { sudo route del $1 gw $2; }
+function roan() { sudo route add -net $1 gw $2; }
+function rodn() { sudo route del -net $1 gw $2; }
+alias    res='more /etc/resolv.conf; echo; echo "dhcp:"; more /etc/resolv.conf.dhcp'
+alias    reo='sudo mv /etc/resolv.conf /etc/resolv.conf.dhcp; sudo cp /etc/resolv.conf.odns /etc/resolv.conf'
+alias    red='sudo cp /etc/resolv.conf.dhcp /etc/resolv.conf'
+alias    rem='sudo mv /etc/resolv.conf /etc/resolv.conf.dhcp; sudo cp /etc/resolv.conf.meg /etc/resolv.conf'
+alias    ren='sudo mv /etc/resolv.conf /etc/resolv.conf.dhcp; sudo cp /etc/resolv.conf.proxy /etc/resolv.conf'
+alias    renn='sudo mv /etc/resolv.conf /etc/resolv.conf.dhcp; sudo cp /etc/resolv.conf.proxynet /etc/resolv.conf'
+alias    ipts='sudo iptables -nL -v'
+alias    ipte='sudo vim /etc/iptables/iptables.rules'
+alias    iptr='sudo /etc/rc.d/iptables restart'
+alias    ipd='sudo ip del $1 dev $2'
+
+function hd() { echo "ibase=16; $1"| bc; }
+function dh() { echo "obase=16; $1"| bc; }
+
+alias    ifconfig="echo It\'s 2013, Poncho. Learn to use /usr/bin/ip."
