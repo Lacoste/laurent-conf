@@ -79,6 +79,8 @@ alias    pabeep='paplay /usr/share/sounds/gnome/default/alerts/bark.ogg'
 function now() { while read line; do echo -e "`date ${1:++"$1"}` $line"; done }
 function loop() { time=$1; shift; while :; do echo $@; eval $@; sleep $time; done; pabeep; }
 function loop_false() { time=$1; shift; while :; do echo $@; eval $@ && break; sleep $time; done; pabeep; }
+alias    scrs='while read a; do echo $a; sleep 0.2; done'
+alias    scrs2='while read a; do echo $a |while IFS= read -n1 -d "" -r b ; do echo -n "$b"; sleep 0.005; done; done'
 
 alias    pingg='ping google.com'
 alias    pingx='ping 8.8.8.8'
