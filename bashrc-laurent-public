@@ -1,7 +1,7 @@
 #
 # PUBLIC bashrc
 # <laurent@gouloum.fr>
-#
+# looran/laurent-conf
 
 export EDITOR="vim"
 
@@ -71,11 +71,9 @@ function wpasup_ferber() { ifran $1; sudo wpa_supplicant -Dwext -i$1 -c/etc/wpa_
 function wpasup_noconf() { ifran $1; sudo wpa_supplicant -Dwext -i$1 -c/etc/wpa_supplicant/wpa_supplicant-empty.conf; }
 alias    alie='vim ~/.bashrc-laurent-public'
 alias    alir='. ~/.bashrc-laurent-public'
-alias    usee='vim ~/perso/USEFULL_COMMANDS'
 alias    xbindkeys-reload="pkill xbindkeys; xbindkeys"
 alias    tn='tmux new-session -s'
 alias    ta='tmux attach'
-alias    pabeep='paplay /usr/share/sounds/gnome/default/alerts/bark.ogg'
 function now() { while read line; do echo -e "`date ${1:++"$1"}` $line"; done }
 function loop() { time=$1; shift; while :; do echo $@; eval $@; sleep $time; done; pabeep; }
 function loop_false() { time=$1; shift; while :; do echo $@; eval $@ && break; sleep $time; done; pabeep; }
